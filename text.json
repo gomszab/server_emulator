@@ -41,14 +41,14 @@
       "path": "/pages/items/:id",
       "response_type": "html",
       "logic": "remove by id in dataset",
-      "html_body":"<h1>Successfully removed item {routeparam:id}</h1><table>{memory:dataset}</table>"
+      "html_body":"<h1>Successfully removed item {pathparam:id}</h1><table>{memory:dataset}</table>"
     },
     {
       "method": "GET",
       "path": "/pages/items/:id",
       "response_type": "html",
       "logic": "find by id in dataset",
-      "html_body": "<h1>Elem azonosito {routeparam:id}</h1><div>{memory:element}</div>"
+      "html_body": "<h1>Elem azonosito {pathparam:id}</h1><div>{memory:element}</div>"
     },
     {
       "method": "GET",

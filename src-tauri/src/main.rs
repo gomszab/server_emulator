@@ -86,7 +86,8 @@ fn start_server(file_content: String, state: tauri::State<Arc<Mutex<ServerState>
             }
             
             let url_path = request.url();
-            println!("{}",url_path);
+            let method = request.method().as_str();
+            println!("Incomming request {} {}",method, url_path);
             if url_path == "/"{
                 let response = Response::from_string(format!("<html><body>A szerver fut</body></html>")).with_header::<Header>("Content-Type: text/html; charset=utf8".parse().unwrap());
                 request.respond(response).unwrap();
@@ -120,10 +121,8 @@ fn stop_server(state: tauri::State<Arc<Mutex<ServerState>>>) -> Result<String, S
             let _  = reqwest::blocking::get(&format!("http://127.0.0.1:{}", &port2.unwrap()));
 
         });
-        println!("Stop signal sent to server.");
         Ok(port.unwrap().to_string())
     } else {  
-        println!("Server is not running");
         Err("Server is not running.".to_string()) 
     }
 } 

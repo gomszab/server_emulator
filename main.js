@@ -13,7 +13,7 @@ button.textContent = 'Hozzaad';
 form.appendChild(button);
 form.addEventListener('submit', (e) => {
     e.preventDefault();
-    fetch('http://127.0.0.1:63007/items', {
+    fetch('http://127.0.0.1:63013/fruits', {
         method: 'POST', 
         headers: {
             'Content-Type' : 'application/json'

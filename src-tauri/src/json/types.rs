@@ -27,6 +27,7 @@ impl JsonTemplate {
                 "find in dataset by queryparameter" => {
                     JsonTemplate::FindByQueryParameter(wrapper.query_params)
                 }
+                "remove by id in dataset" => JsonTemplate::RemoveById(wrapper.path_params),
                 _ => JsonTemplate::Unsupported(),
             }
         } else {

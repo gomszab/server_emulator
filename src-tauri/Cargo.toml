@@ -1,6 +1,6 @@
 [package]
 name = "webfejl_backend_emu"
-version = "0.1.0"
+version = "0.1.1"
 description = "A Tauri App"
 authors = ["gomszab"]
 edition = "2021"

@@ -2,12 +2,11 @@ use std::sync::{Arc, Mutex};
 
 use crate::{
     html::{
-        add_item_html, find_by_id_html, find_by_queryparam_html, no_logic_html, not_found_html,
-        return_dataset_html, HtmlResponse, HtmlTemplate,
+        add_item_html, find_by_id_html, find_by_queryparam_html, no_logic_html, not_found_html, remove_by_id_html, return_dataset_html, HtmlResponse, HtmlTemplate
     },
     json::{
-        add_item_json, find_by_id_json, not_found_json, remove_by_id_json, return_dataset_json,
-        JsonResponse, JsonTemplate,
+        add_item_json, find_by_id_json, find_by_queryparam_json, not_found_json, remove_by_id_json,
+        return_dataset_json, JsonResponse, JsonTemplate,
     },
 };
 use serde_json::Value;
@@ -55,7 +54,8 @@ impl HtmlOrJson {
                 HtmlTemplate::NoLogic(queryparam) => no_logic_html(htmlbody, queryparam),
                 HtmlTemplate::FindByQueryParameter(queryparam) => {
                     find_by_queryparam_html(dataset, queryparam, htmlbody)
-                }
+                },
+                HtmlTemplate::RemoveById(pathparam) => remove_by_id_html(dataset, htmlbody, pathparam),
                 HtmlTemplate::NotFound() => not_found_html(),
             },
             HtmlOrJson::HTML((_, None, _)) => not_found_html(),
@@ -65,7 +65,9 @@ impl HtmlOrJson {
                 JsonTemplate::RemoveById(pathparam) => remove_by_id_json(dataset, pathparam),
                 JsonTemplate::ReturnDataSet() => return_dataset_json(dataset),
                 JsonTemplate::Unsupported() => not_found_json(),
-                JsonTemplate::FindByQueryParameter(_) => panic!("not implemented"),
+                JsonTemplate::FindByQueryParameter(queryparameter) => {
+                    find_by_queryparam_json(dataset, queryparameter)
+                }
             },
         }
     }

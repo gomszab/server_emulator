@@ -14,6 +14,7 @@ pub enum HtmlTemplate {
     AddItem(Option<Value>),
     FindById(HashMap<String, String>),
     FindByQueryParameter(HashMap<String, String>),
+    RemoveById(HashMap<String, String>),
     NoLogic(HashMap<String, String>),
     NotFound(),
 }
@@ -27,7 +28,8 @@ impl HtmlTemplate {
                 "find by id in dataset" => HtmlTemplate::FindById(wrapper.path_params),
                 "find in dataset by queryparameter" => {
                     HtmlTemplate::FindByQueryParameter(wrapper.query_params)
-                }
+                },
+                "remove by id in dataset" => HtmlTemplate::RemoveById(wrapper.path_params),
                 _ => HtmlTemplate::NotFound(),
             }
         } else {

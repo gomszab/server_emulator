@@ -1,6 +1,9 @@
-use super::{chain::{RequestFilter, ValidationContext}, parse_functions::split_path_and_query};
+use super::{
+    chain::{RequestFilter, ValidationContext},
+    parse_functions::split_path_and_query,
+};
 
-pub(crate) struct  PathValidator;
+pub(crate) struct PathValidator;
 
 impl RequestFilter for PathValidator {
     fn do_filter(&self, ctx: &mut ValidationContext) -> Option<()> {
@@ -17,7 +20,8 @@ impl RequestFilter for PathValidator {
 
         for (e_seg, r_seg) in endpoint_segments.iter().zip(request_segments.iter()) {
             if e_seg.starts_with(':') {
-                ctx.path_params.insert(e_seg[1..].to_string(), r_seg.to_string());
+                ctx.path_params
+                    .insert(e_seg[1..].to_string(), r_seg.to_string());
             } else if e_seg != r_seg {
                 return None;
             }

@@ -7,8 +7,6 @@ use crate::html::template_engine;
 
 use super::util::{make_invalid_response_html, HTML_RESPONSE};
 
-
-
 pub fn add_item_html(
     dataset: &Arc<Mutex<Vec<Value>>>,
     template: &String,
@@ -17,7 +15,7 @@ pub fn add_item_html(
     let mut request_body = request.clone();
     {
         let mut data = dataset.lock().unwrap();
-        
+
         if let Some(ref mut value) = request_body {
             if let Value::Object(ref mut map) = value {
                 // Convert data.len() to JSON-compatible number
@@ -31,7 +29,12 @@ pub fn add_item_html(
         }
     }
 
-    let content =
-        template_engine::render_template(template.as_str(), Some(dataset), None, None, request_body);
+    let content = template_engine::render_template(
+        template.as_str(),
+        Some(dataset),
+        None,
+        None,
+        request_body,
+    );
     Response::from_string(content).with_header::<Header>(HTML_RESPONSE.parse().unwrap())
 }

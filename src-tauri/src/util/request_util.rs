@@ -3,7 +3,7 @@ use serde_json::Value;
 use std::collections::HashMap;
 use tiny_http::Request;
 
-use crate::filter_chain::chain::{ValidationContext, FilterChain};
+use crate::filter_chain::chain::{FilterChain, ValidationContext};
 
 #[derive(Deserialize, Serialize, Clone)]
 pub struct Endpoint {

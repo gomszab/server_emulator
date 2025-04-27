@@ -1,12 +1,14 @@
 use serde_json::Value;
-use std::{collections::HashMap, sync::{Arc, Mutex}};
+use std::{
+    collections::HashMap,
+    sync::{Arc, Mutex},
+};
 
 use crate::util::get_value_as_string;
 
-
-enum DataSetOrSingleValue<'a>{
+enum DataSetOrSingleValue<'a> {
     Dataset(&'a Arc<Mutex<Vec<Value>>>),
-    SingleValue(&'a Value)
+    SingleValue(&'a Value),
 }
 
 trait DataSetOrSingleValueTrait {
@@ -38,63 +40,56 @@ pub fn render_template<T: DataSetOrSingleValueTrait>(
         if output.contains("{memory:dataset}") {
             if let DataSetOrSingleValue::Dataset(dataset) = &datasetparam.to_dataset_single() {
                 let mut dataset = dataset.lock().unwrap();
-                let mappedrows: Vec<String> = dataset.iter_mut().map(|element| {
-                    let mut result = String::new();
-                    if let Value::Object(ref mut map) = element {
-                       
-                        result.push_str("<tr>");
-                        for pair in map  {
-                            if let Some(raw_value) = pair.1.as_str() {
-                                result.push_str(format!("<td>{}</td>", raw_value).as_str());
-                            } else {
-                                // Fallback for non-string values
-                                result.push_str(format!("<td>{}</td>", pair.1.to_string()).as_str());
+                let mappedrows: Vec<String> = dataset
+                    .iter_mut()
+                    .map(|element| {
+                        let mut result = String::new();
+                        if let Value::Object(ref mut map) = element {
+                            result.push_str("<tr>");
+                            for pair in map {
+                                if let Some(raw_value) = pair.1.as_str() {
+                                    result.push_str(format!("<td>{}</td>", raw_value).as_str());
+                                } else {
+                                    // Fallback for non-string values
+                                    result.push_str(
+                                        format!("<td>{}</td>", pair.1.to_string()).as_str(),
+                                    );
+                                }
                             }
+                            result.push_str("</tr>");
                         }
-                        result.push_str("</tr>");
-                        
-                    }
-                    result
-                }).collect();
-                output = output.replace(
-                    "{memory:dataset}", 
-                    &format!("{}", mappedrows.join(""))
-                );
+                        result
+                    })
+                    .collect();
+                output = output.replace("{memory:dataset}", &format!("{}", mappedrows.join("")));
             }
-            
         }
-    
+
         if output.contains("{memory:element}") {
             if let DataSetOrSingleValue::SingleValue(element) = &datasetparam.to_dataset_single() {
                 let mut result = String::new();
-                if let Value::Object(map) = element{
-                    for pair in map  {
+                if let Value::Object(map) = element {
+                    for pair in map {
                         if let Some(raw_value) = pair.1.as_str() {
                             result.push_str(format!("<h1>{}</h1>", raw_value).as_str());
                         } else {
                             // Fallback for non-string values
                             result.push_str(format!("<h1>{}</h1>", pair.1.to_string()).as_str());
                         }
-                    } 
-                    output = output.replace(
-                        "{memory:element}", 
-                        &format!("{}", result)
-                    );
+                    }
+                    output = output.replace("{memory:element}", &format!("{}", result));
                 }
             }
-            
         }
     }
     // Handle dataset replacement
-   
 
     // Replace route parameters
     if let Some(routes) = route_params {
         for (key, value) in routes.into_iter() {
-            output = output.replace(&format!("{{pathparam:{}}}", key), value.as_str()); 
+            output = output.replace(&format!("{{pathparam:{}}}", key), value.as_str());
         }
     }
-    
 
     if let Some(queries) = query_params {
         for (key, value) in queries.into_iter() {
@@ -102,16 +97,18 @@ pub fn render_template<T: DataSetOrSingleValueTrait>(
         }
     }
     // Replace query parameters
-    
 
     // Replace request body parameters
     if let Some(body) = request_body {
         if let Value::Object(map) = &body {
-        for pair in map {
-                output = output.replace(&format!("{{request:{}}}", pair.0), get_value_as_string(pair.1).as_str());
+            for pair in map {
+                output = output.replace(
+                    &format!("{{request:{}}}", pair.0),
+                    get_value_as_string(pair.1).as_str(),
+                );
+            }
         }
     }
-}
 
     output
 }

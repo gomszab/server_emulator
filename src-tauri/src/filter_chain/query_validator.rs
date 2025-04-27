@@ -1,6 +1,9 @@
 use urlencoding::decode;
 
-use super::{chain::{RequestFilter, ValidationContext}, parse_functions::{parse_query, split_path_and_query}};
+use super::{
+    chain::{RequestFilter, ValidationContext},
+    parse_functions::{parse_query, split_path_and_query},
+};
 
 pub(crate) struct QueryValidator;
 
@@ -24,8 +27,9 @@ impl RequestFilter for QueryValidator {
         for (key, e_val) in &endpoint_q {
             if let Some(r_val) = request_q.get(key) {
                 if e_val.starts_with('<') && e_val.ends_with('>') {
-                    let placeholder = e_val[1..e_val.len()-1].to_string();
-                    let decoded = decode(r_val).unwrap_or(std::borrow::Cow::Owned(r_val.to_owned()));
+                    let placeholder = e_val[1..e_val.len() - 1].to_string();
+                    let decoded =
+                        decode(r_val).unwrap_or(std::borrow::Cow::Owned(r_val.to_owned()));
                     ctx.query_params.insert(placeholder, decoded.into_owned());
                 } else if e_val != r_val {
                     return None;

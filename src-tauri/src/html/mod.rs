@@ -1,6 +1,6 @@
-pub mod types;
-pub mod template_engine;
 pub mod api;
+pub mod template_engine;
+pub mod types;
 
-pub use types::*;
 pub use api::*;
+pub use types::*;

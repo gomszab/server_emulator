@@ -87,7 +87,8 @@ fn start_server(file_content: String, state: tauri::State<Arc<Mutex<ServerState>
             
             let url_path = request.url();
             let method = request.method().as_str();
-            println!("Incomming request {} {}",method, url_path);
+            println!("---- Incomming request ----");
+            println!("{} {}",method, url_path);
             if url_path == "/"{
                 let response = Response::from_string(format!("<html><body>A szerver fut</body></html>")).with_header::<Header>("Content-Type: text/html; charset=utf8".parse().unwrap());
                 request.respond(response).unwrap();

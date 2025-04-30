@@ -4,7 +4,7 @@ use std::sync::{
     Arc, Mutex,
 };
 
-use api_lib::util::*;
+use api_lib::{service::datasetstruct::DatasetFacade, util::*};
 use tiny_http::{Header, Response, Server};
 
 #[derive(Deserialize)]
@@ -45,7 +45,7 @@ fn start_server(
         serde_json::from_str(&file_content).map_err(|_| "Failed to parse JSON".to_string())?;
     let port = &config.port.clone();
 
-    let shared_dataset = Arc::new(Mutex::new(config.dataset));
+    let facade = Arc::new(DatasetFacade::new(config.dataset));
     let endpoints: Vec<Endpoint> = config
         .endpoints
         .into_iter()
@@ -114,7 +114,7 @@ fn start_server(
                         );
                 request.respond(response).unwrap();
             } else {
-                let response = handle_request(&mut request, &endpoints, shared_dataset.clone())
+                let response = handle_request(&mut request, &endpoints, facade.clone())
                     .with_header(Header::from_bytes("Access-Control-Allow-Origin", "*").unwrap());
                 request.respond(response).unwrap();
             }

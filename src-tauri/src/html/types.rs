@@ -1,13 +1,10 @@
-use std::{
-    collections::HashMap,
-    sync::{Arc, Mutex},
-};
+use std::{collections::HashMap, sync::Arc};
 
 use serde_json::Value;
 
-use crate::util::RequestWrapper;
+use crate::{service::datasetstruct::DatasetFacade, util::RequestWrapper};
 
-pub type HtmlResponse = (Arc<Mutex<Vec<Value>>>, Option<String>, HtmlTemplate);
+pub type HtmlResponse = (Arc<DatasetFacade>, Option<String>, HtmlTemplate);
 
 pub enum HtmlTemplate {
     ReturnDataSet(),
@@ -28,7 +25,7 @@ impl HtmlTemplate {
                 "find by id in dataset" => HtmlTemplate::FindById(wrapper.path_params),
                 "find in dataset by queryparameter" => {
                     HtmlTemplate::FindByQueryParameter(wrapper.query_params)
-                },
+                }
                 "remove by id in dataset" => HtmlTemplate::RemoveById(wrapper.path_params),
                 _ => HtmlTemplate::NotFound(),
             }

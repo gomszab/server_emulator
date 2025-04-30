@@ -1,18 +1,14 @@
-use std::sync::{Arc, Mutex};
+use std::sync::Arc;
 
-use serde_json::Value;
 use tiny_http::Response;
+
+use crate::service::{datasetstruct::DatasetFacade, read_operation::DatasetReadOperation};
 
 use super::util::create_json_response;
 
-pub fn return_dataset_json(dataset: &Arc<Mutex<Vec<Value>>>) -> Response<std::io::Cursor<Vec<u8>>> {
-    if let Ok(data) = dataset.lock() {
-        if let Ok(json) = serde_json::to_string(&*data) {
-            create_json_response(&json, 200)
-        } else {
-            create_json_response(r#"{"message": "Something wrong"}"#, 400)
-        }
-    } else {
-        create_json_response(r#"{"message": "Something wrong"}"#, 503)
+pub fn return_dataset_json(facade: &Arc<DatasetFacade>) -> Response<std::io::Cursor<Vec<u8>>> {
+    match facade.get_all() {
+        Ok(dataset) => create_json_response(&serde_json::to_string(dataset).unwrap(), 200),
+        Err(_) => create_json_response(r#"{"message": "Something wrong"}"#, 400),
     }
 }

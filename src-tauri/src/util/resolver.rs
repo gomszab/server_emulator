@@ -1,13 +1,12 @@
-use std::sync::{Arc, Mutex};
+use std::sync::Arc;
 
 use crate::{
     html::{
-        add_item_html, find_by_id_html, find_by_queryparam_html, no_logic_html, not_found_html, remove_by_id_html, return_dataset_html, HtmlResponse, HtmlTemplate
+        add_item_html, find_by_id_html, find_by_queryparam_html, no_logic_html, not_found_html,
+        remove_by_id_html, return_dataset_html, HtmlResponse, HtmlTemplate,
     },
-    json::{
-        add_item_json, find_by_id_json, find_by_queryparam_json, not_found_json, remove_by_id_json,
-        return_dataset_json, JsonResponse, JsonTemplate,
-    },
+    json::{JsonResponse, JsonTemplate},
+    service::datasetstruct::DatasetFacade,
 };
 use serde_json::Value;
 use tiny_http::{Request, Response};
@@ -23,18 +22,15 @@ impl HtmlOrJson {
     pub fn create(
         endpoint: Endpoint,
         request: &mut Request,
-        dataset: Arc<Mutex<Vec<Value>>>,
+        facade: Arc<DatasetFacade>,
     ) -> Option<HtmlOrJson> {
         if let Some(wrapper) = create_request_wrapper(endpoint, request) {
             if &wrapper.endpoint.response_type == "json" {
-                return Some(HtmlOrJson::JSON((
-                    dataset.clone(),
-                    JsonTemplate::create(wrapper),
-                )));
+                return Some(HtmlOrJson::JSON((facade, JsonTemplate::create(wrapper))));
             }
             if &wrapper.endpoint.response_type == "html" {
                 return Some(HtmlOrJson::HTML((
-                    dataset.clone(),
+                    facade,
                     wrapper.endpoint.html_body.clone(),
                     HtmlTemplate::create(wrapper),
                 )));
@@ -47,28 +43,30 @@ impl HtmlOrJson {
 impl HtmlOrJson {
     pub fn to_response(&self) -> Response<std::io::Cursor<Vec<u8>>> {
         match self {
-            HtmlOrJson::HTML((dataset, Some(htmlbody), htmltemplate)) => match htmltemplate {
-                HtmlTemplate::ReturnDataSet() => return_dataset_html(dataset, htmlbody),
-                HtmlTemplate::AddItem(request) => add_item_html(dataset, htmlbody, request),
-                HtmlTemplate::FindById(pathparam) => find_by_id_html(dataset, htmlbody, pathparam),
+            HtmlOrJson::HTML((facade, Some(htmlbody), htmltemplate)) => match htmltemplate {
+                HtmlTemplate::ReturnDataSet() => return_dataset_html(facade, htmlbody),
+                HtmlTemplate::AddItem(request) => add_item_html(facade, htmlbody, request),
+                HtmlTemplate::FindById(pathparam) => find_by_id_html(facade, htmlbody, pathparam),
                 HtmlTemplate::NoLogic(queryparam) => no_logic_html(htmlbody, queryparam),
                 HtmlTemplate::FindByQueryParameter(queryparam) => {
-                    find_by_queryparam_html(dataset, queryparam, htmlbody)
-                },
-                HtmlTemplate::RemoveById(pathparam) => remove_by_id_html(dataset, htmlbody, pathparam),
+                    find_by_queryparam_html(facade, queryparam, htmlbody)
+                }
+                HtmlTemplate::RemoveById(pathparam) => {
+                    remove_by_id_html(facade, htmlbody, pathparam)
+                }
                 HtmlTemplate::NotFound() => not_found_html(),
             },
             HtmlOrJson::HTML((_, None, _)) => not_found_html(),
-            HtmlOrJson::JSON((dataset, jsontemplate)) => match jsontemplate {
-                JsonTemplate::AddItem(request) => add_item_json(dataset, request),
-                JsonTemplate::FindById(pathparam) => find_by_id_json(dataset, pathparam),
-                JsonTemplate::RemoveById(pathparam) => remove_by_id_json(dataset, pathparam),
-                JsonTemplate::ReturnDataSet() => return_dataset_json(dataset),
-                JsonTemplate::Unsupported() => not_found_json(),
-                JsonTemplate::FindByQueryParameter(queryparameter) => {
-                    find_by_queryparam_json(dataset, queryparameter)
-                }
-            },
+            HtmlOrJson::JSON(_) => panic!("nononoo"), // HtmlOrJson::JSON((facade, jsontemplate)) => match jsontemplate {
+                                                      //     JsonTemplate::AddItem(request) => add_item_json(facade, request),
+                                                      //     JsonTemplate::FindById(pathparam) => find_by_id_json(facade, pathparam),
+                                                      //     JsonTemplate::RemoveById(pathparam) => remove_by_id_json(facade, pathparam),
+                                                      //     JsonTemplate::ReturnDataSet() => return_dataset_json(facade),
+                                                      //     JsonTemplate::Unsupported() => not_found_json(),
+                                                      //     JsonTemplate::FindByQueryParameter(queryparameter) => {
+                                                      //         find_by_queryparam_json(facade, queryparameter)
+                                                      //     }
+                                                      // },
         }
     }
 }

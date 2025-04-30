@@ -1,40 +1,41 @@
-use std::{
-    collections::HashMap,
-    sync::{Arc, Mutex},
-};
+use std::{collections::HashMap, sync::Arc};
 
-use serde_json::Value;
 use tiny_http::{Header, Response};
 
-use crate::html::template_engine;
+use crate::{
+    html::template_engine,
+    service::{
+        datasetstruct::DatasetFacade, types::ElementNotFound,
+        write_operation::DatasetWriteOperation,
+    },
+};
 
 use super::util::{make_invalid_response_html, HTML_RESPONSE};
 
-
 pub fn remove_by_id_html(
-    dataset: &Arc<Mutex<Vec<Value>>>,
+    facade: &Arc<DatasetFacade>,
     template: &str,
     path_param: &HashMap<String, String>,
 ) -> Response<std::io::Cursor<Vec<u8>>> {
-
-    let id = path_param.get("id");
-    {
-        let mut data = dataset.lock().unwrap();
-        if let Some(pos) = id.and_then(|id| data.iter().position(|item| item["id"].to_string() == *id))
-        {
-            data.remove(pos);
-            
-        } else {
-            return make_invalid_response_html("<h1>Invalid id</h1>");
+    let content = if let Some(id) = path_param.get("id") {
+        match facade.remove_by_id(id.to_string()) {
+            Ok(dataset) => Ok(template_engine::render_template(
+                template,
+                Some(dataset),
+                Some(path_param.clone()),
+                None,
+                None,
+            )),
+            Err(ElementNotFound) => Err("<h1>Element not found</h1>"),
         }
+    } else {
+        Err("<h1>Unrecognized id parameter</h1>")
+    };
+
+    match content {
+        Ok(content) => {
+            Response::from_string(content).with_header::<Header>(HTML_RESPONSE.parse().unwrap())
+        }
+        Err(message) => make_invalid_response_html(message),
     }
-    let content = template_engine::render_template(
-        template,
-        Some(dataset),
-        Some(path_param.clone()),
-        None,
-        None,
-    );
-    Response::from_string(content).with_header::<Header>(HTML_RESPONSE.parse().unwrap())
-    
 }

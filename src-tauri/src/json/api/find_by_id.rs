@@ -1,25 +1,23 @@
-use std::{
-    collections::HashMap,
-    sync::{Arc, Mutex},
-};
+use std::{collections::HashMap, sync::Arc};
 
-use serde_json::Value;
 use tiny_http::Response;
+
+use crate::service::{
+    datasetstruct::DatasetFacade, read_operation::DatasetReadOperation, types::ElementNotFound,
+};
 
 use super::util::create_json_response;
 
 pub fn find_by_id_json(
-    dataset: &Arc<Mutex<Vec<Value>>>,
+    facade: &Arc<DatasetFacade>,
     path_param: &HashMap<String, String>,
 ) -> Response<std::io::Cursor<Vec<u8>>> {
-    let id = path_param
-        .get("id")
-        .and_then(|id| id.parse::<String>().ok());
-    let data = dataset.lock().unwrap();
-    if let Some(item) = id.and_then(|id| data.iter().find(|item| item["id"].to_string() == id)) {
-        let json = serde_json::to_string(item).unwrap();
-        create_json_response(&json, 200)
+    if let Some(id) = path_param.get("id") {
+        match facade.get_by_id(id) {
+            Ok(item) => create_json_response(&serde_json::to_string(&item).unwrap(), 200),
+            Err(ElementNotFound) => create_json_response(r#"{"error": "Item not found"}"#, 404),
+        }
     } else {
-        create_json_response(r#"{"error": "Item not found"}"#, 404)
+        create_json_response(r#"{"error": "Unrecognized id"}"#, 400)
     }
 }

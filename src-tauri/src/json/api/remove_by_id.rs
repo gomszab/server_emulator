@@ -6,20 +6,21 @@ use std::{
 use serde_json::Value;
 use tiny_http::Response;
 
+use crate::service::{datasetstruct::DatasetFacade, write_operation::DatasetWriteOperation};
+
 use super::util::create_json_response;
 
 pub fn remove_by_id_json(
-    dataset: &Arc<Mutex<Vec<Value>>>,
+    facade: &Arc<DatasetFacade>,
     path_param: &HashMap<String, String>,
 ) -> Response<std::io::Cursor<Vec<u8>>> {
-    let id = path_param.get("id");
 
-    let mut data = dataset.lock().unwrap();
-    if let Some(pos) = id.and_then(|id| data.iter().position(|item| item["id"].to_string() == *id))
-    {
-        data.remove(pos);
-        create_json_response(r#"{"error": "Item removed"}"#, 200)
-    } else {
-        create_json_response(r#"{"error": "Item not found"}"#, 404)
+    if let Some(id) = path_param.get("id") {
+        match facade.remove_by_id(id.clone()) {
+            Ok(_) => create_json_response(r#"{"error": "Item removed"}"#, 200),
+            Err(_) => create_json_response(r#"{"error": "Item not found"}"#, 404)     
+        }
+    }else{
+        create_json_response(r#"{"error": "Unrecognized id"}"#, 404)
     }
 }

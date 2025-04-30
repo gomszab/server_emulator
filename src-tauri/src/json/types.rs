@@ -5,9 +5,9 @@ use std::{
 
 use serde_json::Value;
 
-use crate::util::RequestWrapper;
+use crate::{service::datasetstruct::DatasetFacade, util::RequestWrapper};
 
-pub type JsonResponse = (Arc<Mutex<Vec<Value>>>, JsonTemplate);
+pub type JsonResponse = (Arc<DatasetFacade>, JsonTemplate);
 pub enum JsonTemplate {
     ReturnDataSet(),
     AddItem(Option<Value>),

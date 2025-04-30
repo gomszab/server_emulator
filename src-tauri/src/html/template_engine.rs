@@ -7,7 +7,7 @@ use std::{
 use crate::util::get_value_as_string;
 
 enum DataSetOrSingleValue<'a> {
-    Dataset(&'a Arc<Mutex<Vec<Value>>>),
+    Dataset(&'a Mutex<Vec<Value>>),
     SingleValue(&'a Value),
 }
 
@@ -15,7 +15,7 @@ trait DataSetOrSingleValueTrait {
     fn to_dataset_single(&self) -> DataSetOrSingleValue;
 }
 
-impl DataSetOrSingleValueTrait for &Arc<Mutex<Vec<Value>>> {
+impl DataSetOrSingleValueTrait for &Mutex<Vec<Value>> {
     fn to_dataset_single(&self) -> DataSetOrSingleValue {
         DataSetOrSingleValue::Dataset(*self)
     }

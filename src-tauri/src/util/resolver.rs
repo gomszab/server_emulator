@@ -5,7 +5,10 @@ use crate::{
         add_item_html, find_by_id_html, find_by_queryparam_html, no_logic_html, not_found_html,
         remove_by_id_html, return_dataset_html, HtmlResponse, HtmlTemplate,
     },
-    json::{JsonResponse, JsonTemplate},
+    json::{
+        add_item_json, find_by_id_json, find_by_queryparam_json, not_found_json, remove_by_id_json,
+        return_dataset_json, JsonResponse, JsonTemplate,
+    },
     service::datasetstruct::DatasetFacade,
 };
 use serde_json::Value;
@@ -57,16 +60,16 @@ impl HtmlOrJson {
                 HtmlTemplate::NotFound() => not_found_html(),
             },
             HtmlOrJson::HTML((_, None, _)) => not_found_html(),
-            HtmlOrJson::JSON(_) => panic!("nononoo"), // HtmlOrJson::JSON((facade, jsontemplate)) => match jsontemplate {
-                                                      //     JsonTemplate::AddItem(request) => add_item_json(facade, request),
-                                                      //     JsonTemplate::FindById(pathparam) => find_by_id_json(facade, pathparam),
-                                                      //     JsonTemplate::RemoveById(pathparam) => remove_by_id_json(facade, pathparam),
-                                                      //     JsonTemplate::ReturnDataSet() => return_dataset_json(facade),
-                                                      //     JsonTemplate::Unsupported() => not_found_json(),
-                                                      //     JsonTemplate::FindByQueryParameter(queryparameter) => {
-                                                      //         find_by_queryparam_json(facade, queryparameter)
-                                                      //     }
-                                                      // },
+            HtmlOrJson::JSON((facade, jsontemplate)) => match jsontemplate {
+                JsonTemplate::AddItem(request) => add_item_json(facade, request),
+                JsonTemplate::FindById(pathparam) => find_by_id_json(facade, pathparam),
+                JsonTemplate::RemoveById(pathparam) => remove_by_id_json(facade, pathparam),
+                JsonTemplate::ReturnDataSet() => return_dataset_json(facade),
+                JsonTemplate::Unsupported() => not_found_json(),
+                JsonTemplate::FindByQueryParameter(queryparameter) => {
+                    find_by_queryparam_json(facade, queryparameter)
+                }
+            },
         }
     }
 }

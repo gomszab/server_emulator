@@ -1,9 +1,5 @@
-use std::{
-    collections::HashMap,
-    sync::{Arc, Mutex},
-};
+use std::{collections::HashMap, sync::Arc};
 
-use serde_json::Value;
 use tiny_http::{Header, Response};
 
 use crate::{
@@ -11,7 +7,6 @@ use crate::{
     service::{
         datasetstruct::DatasetFacade, read_operation::DatasetReadOperation, types::ElementNotFound,
     },
-    util::get_value_as_string,
 };
 
 use super::util::{make_invalid_response_html, HTML_RESPONSE};

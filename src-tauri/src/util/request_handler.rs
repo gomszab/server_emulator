@@ -1,8 +1,7 @@
 use crate::service::datasetstruct::DatasetFacade;
 
 use super::{Endpoint, HtmlOrJson};
-use serde_json::Value;
-use std::sync::{Arc, Mutex};
+use std::sync::Arc;
 use tiny_http::{Request, Response};
 
 pub fn handle_request(

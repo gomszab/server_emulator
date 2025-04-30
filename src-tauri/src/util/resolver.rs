@@ -1,14 +1,11 @@
-use std::sync::{Arc, Mutex};
+use std::sync::Arc;
 
 use crate::{
     html::{
         add_item_html, find_by_id_html, find_by_queryparam_html, no_logic_html, not_found_html,
         remove_by_id_html, return_dataset_html, HtmlResponse, HtmlTemplate,
     },
-    json::{
-        add_item_json, find_by_id_json, find_by_queryparam_json, not_found_json, remove_by_id_json,
-        return_dataset_json, JsonResponse, JsonTemplate,
-    },
+    json::{JsonResponse, JsonTemplate},
     service::datasetstruct::DatasetFacade,
 };
 use serde_json::Value;

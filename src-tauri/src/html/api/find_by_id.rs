@@ -1,9 +1,5 @@
-use std::{
-    collections::HashMap,
-    sync::{Arc, Mutex},
-};
+use std::{collections::HashMap, sync::Arc};
 
-use serde_json::Value;
 use tiny_http::{Header, Response};
 
 use crate::{

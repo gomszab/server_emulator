@@ -1,8 +1,5 @@
 use serde_json::Value;
-use std::{
-    collections::HashMap,
-    sync::{Arc, Mutex},
-};
+use std::{collections::HashMap, sync::Mutex};
 
 use crate::util::get_value_as_string;
 

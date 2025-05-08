@@ -12,6 +12,12 @@ struct Config {
     port: String,
     dataset: Vec<serde_json::Value>,
     endpoints: Vec<Endpoint>,
+    #[serde(default = "default_id_prefix")]
+    id_prefix: String,
+}
+
+fn default_id_prefix() -> String {
+    "".to_string()
 }
 
 #[derive(serde::Serialize)]
@@ -45,7 +51,7 @@ fn start_server(
         serde_json::from_str(&file_content).map_err(|_| "Failed to parse JSON".to_string())?;
     let port = &config.port.clone();
 
-    let facade = Arc::new(DatasetFacade::new(config.dataset));
+    let facade = Arc::new(DatasetFacade::new(config.dataset, config.id_prefix));
     let endpoints: Vec<Endpoint> = config
         .endpoints
         .into_iter()

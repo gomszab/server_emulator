@@ -20,8 +20,10 @@ pub trait DatasetReadOperation {
 impl DatasetReadOperation for DatasetFacade {
     fn get_by_id(&self, id: &String) -> Result<Value, ElementNotFound> {
         let data = self.data.lock().unwrap();
-
-        match data.iter().find(|item| item["id"].to_string() == *id) {
+        match data.iter().find(|item| {
+            let itemid = get_value_as_string(&item["id"]);
+            itemid == *id
+        }) {
             Some(item) => Ok(item.clone()),
             _ => Err(ElementNotFound),
         }
